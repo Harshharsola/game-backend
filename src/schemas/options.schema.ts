@@ -6,7 +6,7 @@ export type OptionsDocument = HydratedDocument<Option>;
 @Schema()
 export class Option {
   @Prop()
-  option: string;
+  optionText: string;
 
   @Prop()
   isCorrect: boolean;
