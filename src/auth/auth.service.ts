@@ -23,11 +23,15 @@ export class AuthService {
         userSignInDto.password,
         user.password,
       );
-      console.log(result);
+
       if (result) {
         const payload = { sub: user._id, username: user.userName };
         const accessToken = await this.jwtService.signAsync(payload);
-        return getApiResponse({ accessToken }, '200', 'login successfull');
+        return getApiResponse(
+          { accessToken, userId: user._id },
+          '200',
+          'login successfull',
+        );
       } else {
         return getApiResponse({}, '400', 'wrong password');
       }
@@ -38,13 +42,22 @@ export class AuthService {
   }
 
   async signUp(userSignUpDto: CreateUserDto) {
-    const hashedPassword = await bcrypt.hash(userSignUpDto.password, 10);
-    const newUser = new this.userModel({
-      email: userSignUpDto.email,
-      password: hashedPassword,
-      userName: userSignUpDto.userName,
-    });
-    await newUser.save();
-    return getApiResponse({}, '201', 'user registered successfully');
+    try {
+      const user = await this.userModel.findOne({ email: userSignUpDto.email });
+      if (user) {
+        return getApiResponse({}, '400', 'email already taken');
+      }
+      const hashedPassword = await bcrypt.hash(userSignUpDto.password, 10);
+      const newUser = new this.userModel({
+        email: userSignUpDto.email,
+        password: hashedPassword,
+        userName: userSignUpDto.userName,
+      });
+      await newUser.save();
+      return getApiResponse({}, '201', 'user registered successfully');
+    } catch (error) {
+      console.log(error);
+      return getApiResponse({}, '500', 'internal server error');
+    }
   }
 }
