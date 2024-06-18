@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { GameModule } from './game/game.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { OnlineUsersService } from './online-users/online-users.service';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { MongooseModule } from '@nestjs/mongoose';
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, OnlineUsersService],
 })
 export class AppModule {}
