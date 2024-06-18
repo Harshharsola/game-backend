@@ -6,6 +6,7 @@ import { UserSignInDto } from './dtos/userSignIn.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { getApiResponse } from 'src/utils';
+import { CreateUserDto } from './dtos/createUser.dto';
 
 export class AuthService {
   constructor(
@@ -22,7 +23,7 @@ export class AuthService {
         userSignInDto.password,
         user.password,
       );
-
+      console.log(result);
       if (result) {
         const payload = { sub: user._id, username: user.userName };
         const accessToken = await this.jwtService.signAsync(payload);
@@ -34,5 +35,16 @@ export class AuthService {
       console.log(error);
       return getApiResponse({}, '500', 'internal server error');
     }
+  }
+
+  async signUp(userSignUpDto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(userSignUpDto.password, 10);
+    const newUser = new this.userModel({
+      email: userSignUpDto.email,
+      password: hashedPassword,
+      userName: userSignUpDto.userName,
+    });
+    await newUser.save();
+    return getApiResponse({}, '201', 'user registered successfully');
   }
 }
